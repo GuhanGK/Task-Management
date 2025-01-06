@@ -51,19 +51,43 @@
 
 .list_table thead.ant-table-thead{
   display: none !important;
+  background-color: red;
 }
-
-.list_table tbody.ant-table-tbody{
+.list_header_table .ant-table-footer{
+  padding: 0px !important;
+}
+.list_header_table .ant-table-thead .ant-table-selection{
+  display: none !important;
+}
+.list_tables .ant-table-tbody{
   display: unset !important;
 }
-.list_header_table tbody.ant-table-tbody{
+.list_header_table tr.ant-table-placeholder{
   display: none !important;
 }
 
 .table_collapse .ant-collapse-content-box{
   padding: 0px !important;
 }
+.list_table .ant-collapse-content-box{
+  padding: 0px !important;
+}
+.list_header_table .ant-collapse-content-box{
+  padding: 0px !important;
+}
 
 .table_collapse .ant-collapse-header-text{
  text-align: left;
+}
+.add_table_container .ant-table-tbody .ant-table-selection{
+  display: none !important;
+}
+.table_collapse_container{
+  background-color: #FAC3FF !important;
+  text-align: left;
+}
+
+
+.add_table_container .add_table_wrapper thead.ant-table-thead{
+  display: none !important;
 }
