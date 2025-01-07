@@ -3,7 +3,6 @@ import {
   SettingOutlined,
   EllipsisOutlined,
   PlusOutlined,
-  HolderOutlined
 } from "@ant-design/icons";
 import {
   Button,
@@ -14,7 +13,6 @@ import {
   Menu,
   Table,
 } from "antd";
-import ProfileImg from "../../../assets/profileImg.svg";
 import DragTable from "../../Reusable/DragTable";
 const { Panel } = Collapse;
 const ListTableView = () => {
@@ -26,7 +24,7 @@ const ListTableView = () => {
     progress: "",
     catagory: ""
   })
-  console.log("addData--->", addData)
+
   const ActionMenu = () => (
     <Menu
       onClick={(e) => {
@@ -333,16 +331,6 @@ const ListTableView = () => {
                         </div>
                       )}
                     </div>
-                    {/* <Table
-                      className="list_table"
-                      columns={columns}
-                      dataSource={dataSource}
-                      pagination={false}
-                      rowSelection={rowSelection}
-                      onRow={(record) => ({
-                        onClick: () => onRowClick(record),
-                      })}
-                    /> */}
                     <DragTable 
                       sourceData={dataSource}
                     />
