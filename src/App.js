@@ -1,19 +1,25 @@
-import './App.css';
-import { Route, Routes } from 'react-router-dom';
-import Home from './Home';
-import Profile from './Components/Pages/Profile';
-import Login from './Components/Pages/Login';
-import ListTableView from './Components/Pages/ListView/index';
-import ListTableViews from './summa';
+import "./App.css";
+import { Route, Routes } from "react-router-dom";
+import { routesData } from "./Routes/RoutesData";
+import { useSelector } from "react-redux";
+import ProtectedRouteAuth from "./Routes/ProtectedRoute";
 
 function App() {
+  const { unProtectedRoutes, protectedRoutes } = routesData;
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   return (
     <div className="App">
       <Routes>
-        <Route path='/login' element={<Login />}/>
-        <Route path='/' element={<Home />}/>
-        <Route path='/profile' element={<Profile />}/>
-        <Route path='/list' element={<ListTableView />}/>
+        {!isLoggedIn &&
+          unProtectedRoutes.map((route, index) => (
+            <Route key={index} path={route.path} element={route.component} />
+          ))}
+
+        <Route element={<ProtectedRouteAuth isLoggedIn={isLoggedIn} />}>
+          {protectedRoutes.map((route, index) => (
+            <Route key={index} path={route.path} element={route.component} />
+          ))}
+        </Route>
       </Routes>
     </div>
   );

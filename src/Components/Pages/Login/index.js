@@ -4,13 +4,17 @@ import CircleImg from "../../../assets/circles_bg.png"
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../FireBase/Firebase";
 import { useNavigate } from "react-router-dom";
+import { setIsLoggedIn } from "../../../Redux/Auth";
+import { useDispatch } from "react-redux";
 
 const Login = () => {
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     const handleGoogleLogin = async () => {
         const provider = new GoogleAuthProvider();
         signInWithPopup(auth, provider).then((res) => {
             if(res.user){
+                dispatch(setIsLoggedIn(true))
                 navigate('/')
             }
         })

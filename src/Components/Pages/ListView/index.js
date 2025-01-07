@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   SettingOutlined,
   EllipsisOutlined,
   PlusOutlined,
+  HolderOutlined
 } from "@ant-design/icons";
 import {
   Button,
@@ -14,6 +15,7 @@ import {
   Table,
 } from "antd";
 import ProfileImg from "../../../assets/profileImg.svg";
+import DragTable from "../../Reusable/DragTable";
 const { Panel } = Collapse;
 const ListTableView = () => {
   const [expandIconPosition, setExpandIconPosition] = useState("end");
@@ -165,6 +167,7 @@ const ListTableView = () => {
       key: "action",
     },
   ];
+  const RowContext = React.createContext({});
 
   const dataSource1 = [
     {
@@ -200,6 +203,10 @@ const ListTableView = () => {
   ];
 
   const columns = [
+    {
+      key: "sort",
+      width: "10%",
+    },
     { title: "Task name", dataIndex: "task", key: "task", width: "20%" },
     { title: "Due on", dataIndex: "dayTime", key: "dayTime", width: "20%" },
     {
@@ -288,24 +295,6 @@ const ListTableView = () => {
 
   return (
     <>
-      <div className="flex justify-between">
-        <div>
-          <h3>TaskBuddy</h3>
-          <div className="flex gap-3">
-            <p>List</p>
-            <p>Board</p>
-          </div>
-        </div>
-        <div>
-          <div className="flex gap-2 items-center">
-            <img src={ProfileImg} alt="ProfileImg" />
-            <p>Guhan</p>
-          </div>
-          <div>
-            <Button>Logout</Button>
-          </div>
-        </div>
-      </div>
       <div className="p-4">
         <Table
           dataSource={[]} // Empty dataSource to remove any initial rows (no table data yet)
@@ -344,7 +333,7 @@ const ListTableView = () => {
                         </div>
                       )}
                     </div>
-                    <Table
+                    {/* <Table
                       className="list_table"
                       columns={columns}
                       dataSource={dataSource}
@@ -353,6 +342,9 @@ const ListTableView = () => {
                       onRow={(record) => ({
                         onClick: () => onRowClick(record),
                       })}
+                    /> */}
+                    <DragTable 
+                      sourceData={dataSource}
                     />
                   </>
                 ) : (
@@ -385,6 +377,38 @@ const ListTableView = () => {
             </Collapse>
           )}
         />
+        <br />
+        <div>
+          <Collapse
+            className="bg-[#85D9F1] text-left"
+            defaultActiveKey={["1"]}
+            onChange={onChange}
+            expandIconPosition={expandIconPosition}
+          >
+            <Panel header="In-Progress (3)" key="1">
+              <DragTable 
+                sourceData={dataSource}
+              />
+            </Panel>
+          </Collapse>
+        </div>
+
+        <br />
+        <div>
+          <Collapse
+            className="bg-[#CEFFCC] text-left"
+            defaultActiveKey={["1"]}
+            onChange={onChange}
+            expandIconPosition={expandIconPosition}
+          >
+            <Panel header="Completed (3)" key="1">
+              <DragTable 
+                sourceData={dataSource}
+              />
+            </Panel>
+          </Collapse>
+        </div>
+        
       </div>
     </>
   );
