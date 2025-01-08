@@ -183,6 +183,10 @@ const ListTableView = () => {
     },
   ];
 
+  const handleClickEdit = (record) => {
+    console.log("redord---->", record)
+  }
+
   const dataSource = [
     {
       key: "1",
@@ -223,7 +227,7 @@ const ListTableView = () => {
       title: "Action",
       dataIndex: "action",
       key: "action",
-      render: () => (
+      render: (text, record) => (
         <Dropdown
           overlay={
             <Menu
@@ -232,7 +236,113 @@ const ListTableView = () => {
               }}
             >
               <Menu.Item key="1">
-                <span className="text-[#000000] text-[16px] font-semibold">
+                <span className="text-[#000000] text-[16px] font-semibold" onClick={handleClickEdit(record)}>
+                  Edit
+                </span>
+              </Menu.Item>
+              <Menu.Item key="2">
+                <span className="text-[#DA2F2F] text-[16px] font-semibold">
+                  Delete
+                </span>
+              </Menu.Item>
+            </Menu>
+          }
+        >
+          <EllipsisOutlined
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent event propagation
+            }}
+          />
+        </Dropdown>
+      ),
+    },
+  ];
+  const columns2 = [
+    {
+      key: "sort",
+      width: "10%",
+    },
+    { title: "Task name", dataIndex: "task", key: "task", width: "20%" },
+    { title: "Due on", dataIndex: "dayTime", key: "dayTime", width: "20%" },
+    {
+      title: "Task Status",
+      dataIndex: "progress",
+      key: "progress",
+      width: "20%",
+    },
+    {
+      title: "Task Category",
+      dataIndex: "process",
+      key: "process",
+      width: "20%",
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      key: "action",
+      render: (text, record) => (
+        <Dropdown
+          overlay={
+            <Menu
+              onClick={(e) => {
+                e.domEvent.stopPropagation(); // Prevent event propagation
+              }}
+            >
+              <Menu.Item key="1">
+                <span className="text-[#000000] text-[16px] font-semibold" onClick={handleClickEdit(record)}>
+                  Edit
+                </span>
+              </Menu.Item>
+              <Menu.Item key="2">
+                <span className="text-[#DA2F2F] text-[16px] font-semibold">
+                  Delete
+                </span>
+              </Menu.Item>
+            </Menu>
+          }
+        >
+          <EllipsisOutlined
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent event propagation
+            }}
+          />
+        </Dropdown>
+      ),
+    },
+  ];
+  const columns3 = [
+    {
+      key: "sort",
+      width: "10%",
+    },
+    { title: "Task name", dataIndex: "task", key: "task", width: "20%" },
+    { title: "Due on", dataIndex: "dayTime", key: "dayTime", width: "20%" },
+    {
+      title: "Task Status",
+      dataIndex: "progress",
+      key: "progress",
+      width: "20%",
+    },
+    {
+      title: "Task Category",
+      dataIndex: "process",
+      key: "process",
+      width: "20%",
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      key: "action",
+      render: (text, record) => (
+        <Dropdown
+          overlay={
+            <Menu
+              onClick={(e) => {
+                e.domEvent.stopPropagation(); // Prevent event propagation
+              }}
+            >
+              <Menu.Item key="1">
+                <span className="text-[#000000] text-[16px] font-semibold" onClick={handleClickEdit(record)}>
                   Edit
                 </span>
               </Menu.Item>

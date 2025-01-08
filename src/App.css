@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  padding: 1rem 2rem;
 }
 
 .App-logo {
@@ -90,4 +91,56 @@
 
 .add_table_container .add_table_wrapper thead.ant-table-thead{
   display: none !important;
+}
+
+.filter_input_container .ant-select-selector{
+  width: 90px;
+  height: 30px;
+  text-align: left;
+  border-radius: 60px;
+}
+
+.search_input{
+  width: 200px;
+  height: 36px;
+  border-radius: 60px;
+}
+
+
+.text-editor-container {
+  position: relative;
+}
+
+/* Override toolbar positioning */
+.ql-toolbar.ql-snow {
+  position: relative;
+  top: 162px;
+  left: 0;
+  width: 100%;
+  border-radius: 0 0 4px 4px; /* Optional rounded corners */
+  z-index: 1;
+  text-align: left;
+  border: none !important;
+  background: #F1F1F15C;
+}
+
+/* Adjust the editor content area */
+.ql-container.ql-snow {
+  border-radius: 4px 4px 0 0; /* Optional rounded corners */
+  padding-bottom: 50px; /* Prevent content overlap with toolbar */
+}
+
+.ql-container.ql-snow {
+  border: 1px solid #00000021 !important;
+  border-radius: 5px;
+  min-height: 120px;
+  background: #F1F1F15C;
+}
+.ql-editor.ql-blank{
+  min-height: 120px;
+  background: #F1F1F15C;
+}
+.ql-editor{
+  min-height: 120px;
+  background: #F1F1F15C;
 }

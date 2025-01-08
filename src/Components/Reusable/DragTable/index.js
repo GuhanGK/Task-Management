@@ -73,6 +73,10 @@ const DragTable = ({ sourceData }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]); // Initial selected keys
   const [selectedRows, setSelectedRows] = useState([]);
 
+  const handleClickEdit = (record) => {
+    console.log("redord---->", record)
+  }
+
   const columns = [
     {
       key: "sort",
@@ -97,7 +101,7 @@ const DragTable = ({ sourceData }) => {
       title: "Action",
       dataIndex: "action",
       key: "action",
-      render: () => (
+      render: (text, record) => (
         <Dropdown
           overlay={
             <Menu
@@ -105,7 +109,7 @@ const DragTable = ({ sourceData }) => {
                 e.domEvent.stopPropagation(); // Prevent event propagation
               }}
             >
-              <Menu.Item key="1">
+              <Menu.Item key="1" onClick={() => handleClickEdit(record)}>
                 <span className="text-[#000000] text-[16px] font-semibold">
                   Edit
                 </span>
