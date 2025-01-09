@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   SettingOutlined,
   EllipsisOutlined,
@@ -16,7 +16,7 @@ import {
 import DragTable from "../../Reusable/DragTable";
 import { useSelector } from "react-redux";
 const { Panel } = Collapse;
-const ListTableView = ({setIsModalOpen}) => {
+const ListTableView = ({setIsModalOpen, taskTableData, handleClickDelete}) => {
   const [expandIconPosition, setExpandIconPosition] = useState("end");
   const [selectedRowKeys, setSelectedRowKeys] = useState([]); // Initial selected keys
   const [selectedRows, setSelectedRows] = useState([]); // Store the selected rows
@@ -26,7 +26,10 @@ const ListTableView = ({setIsModalOpen}) => {
     catagory: ""
   })
 
+  console.log("taskTableData---->", taskTableData)
+
   const getTasksData = useSelector((state) => state.taskTracking.getTasksData)
+
   const ActionMenu = () => (
     <Menu
       onClick={(e) => {
@@ -444,8 +447,9 @@ const ListTableView = ({setIsModalOpen}) => {
                       )}
                     </div>
                     <DragTable 
-                      sourceData={getTasksData}
+                      sourceData={taskTableData.todoData}
                       setIsModalOpen={setIsModalOpen}
+                      handleClickDelete={handleClickDelete}
                     />
                   </>
                 ) : (
@@ -488,8 +492,9 @@ const ListTableView = ({setIsModalOpen}) => {
           >
             <Panel header="In-Progress (3)" key="1">
               <DragTable 
-                sourceData={dataSource}
+                sourceData={taskTableData.inProgressData}
                 setIsModalOpen={setIsModalOpen}
+                handleClickDelete={handleClickDelete}
               />
             </Panel>
           </Collapse>
@@ -505,8 +510,9 @@ const ListTableView = ({setIsModalOpen}) => {
           >
             <Panel header="Completed (3)" key="1">
               <DragTable 
-                sourceData={dataSource}
+                sourceData={taskTableData.completeData}
                 setIsModalOpen={setIsModalOpen}
+                handleClickDelete={handleClickDelete}
               />
             </Panel>
           </Collapse>

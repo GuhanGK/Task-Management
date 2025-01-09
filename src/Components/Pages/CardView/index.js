@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -32,34 +32,30 @@ const DraggableCard = ({ id, content }) => {
       style={style}
       {...attributes}
       {...listeners}
-      className="w-full bg-[#fff] h-[110px] p-3 flex justify-between flex-col rounded-[12px] shadow-md"
+      className="w-full bg-[#fff] min-h-[110px] p-3 flex justify-between flex-col rounded-[12px] shadow-md"
     >
       <div className="flex justify-between">
-        <p>{content.title}</p>
+        <p>{content.task}</p>
         <EllipsisOutlined />
       </div>
       <div className="flex justify-between">
         <span>{content.category}</span>
-        <span>{content.date}</span>
+        <span>{content.dueOn}</span>
       </div>
     </div>
   );
 };
 
-const CardView = () => {
+const CardView = ({taskTableData}) => {
   const [columns, setColumns] = useState({
-    Work: [
-      { id: "1", title: "Interview with Design Team", category: "Work", date: "Today" },
-      { id: "2", title: "Prepare Design Brief", category: "Work", date: "Tomorrow" },
-    ],
-    Complete: [
-      { id: "3", title: "Team Meeting", category: "Complete", date: "Next Week" },
-      { id: "4", title: "Finalize Report", category: "Complete", date: "Next Month" },
-    ],
-    Pending: [
-      { id: "5", title: "Schedule Presentation", category: "Pending", date: "Next Week" },
-    ],
+    Work: taskTableData.todoData,
+    Complete: taskTableData.inProgressData,
+    Pending: taskTableData.completeData,
   });
+
+  useEffect(() => {
+    setColumns(taskTableData)
+  }, [taskTableData])
 
   const handleDragEnd = ({ active, over }) => {
     if (!over || active.id === over.id) return; // Do nothing if there's no valid target or the card isn't moved
@@ -105,10 +101,17 @@ const CardView = () => {
             strategy={verticalListSortingStrategy}
           >
             <div className="w-[33%] h-[100vh] flex flex-col gap-4 bg-[#58575112] p-3 rounded-[12px]">
-              <h3 className="text-lg font-bold">{columnName}</h3>
-              {items.map((item) => (
-                <DraggableCard key={item.id} id={item.id} content={item} />
-              ))}
+              <h3 
+                className={columnName === "todoData" ? "w-fit p-2 rounded-[4px] text-[14px] text-left font-medium bg-[#FAC3FF]" : columnName === "inProgressData" ? "w-fit p-2 rounded-[4px] text-[14px] text-left font-medium bg-[#85D9F1]" : "w-fit p-2 rounded-[4px] text-[14px] text-left font-medium bg-[#A2D6A0]"}
+
+              >
+                {columnName === "todoData" ? "TO-DO" : columnName === "inProgressData" ? "IN-PROGRESS" : "COMPLETED"}
+              </h3>
+              <div className="scroll_container h-[600px] overflow-y-scroll scrollbar-hide flex flex-col gap-3">
+                {items.map((item) => (
+                  <DraggableCard key={item.id} id={item.id} content={item} />
+                ))}
+              </div>
             </div>
           </SortableContext>
         ))}

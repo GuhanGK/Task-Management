@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { HolderOutlined, EllipsisOutlined } from "@ant-design/icons";
 import { DndContext } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
@@ -12,6 +12,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { Button, Dropdown, Menu, Table } from "antd";
 import { useDispatch } from "react-redux";
 import { setEditTableData } from "../../../Redux/Tracking";
+import { useSelector } from "react-redux";
+import { getDatabase, ref, remove } from "firebase/database";
 
 // Context to manage drag-related props for each row
 const RowContext = React.createContext({});
@@ -70,7 +72,8 @@ const SortableRow = ({ children, ...props }) => {
 };
 
 // Main DragTable Component
-const DragTable = ({ sourceData, setIsModalOpen }) => {
+const DragTable = ({ sourceData, setIsModalOpen, handleClickDelete }) => {
+  const getTasksData = useSelector((state) => state.taskTracking.getTasksData)
   const [dataSource, setDataSource] = useState(sourceData);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]); // Initial selected keys
   const [selectedRows, setSelectedRows] = useState([]);
@@ -81,6 +84,27 @@ const DragTable = ({ sourceData, setIsModalOpen }) => {
     setIsModalOpen(true)
   }
 
+  useEffect(() => {
+    setDataSource(sourceData);
+  }, [sourceData]);
+
+  
+  // const handleClickDelete = async (record) => {
+  //   console.log("record--->", record)
+  //   const db = getDatabase(); 
+  //   try {
+  //     if (window.confirm("Are you sure you want to delete this item?")) {
+  //       const docRef = doc(db, "tasks", record.id);
+  //       await deleteDoc(docRef);
+  //       alert("Record deleted successfully!");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting record: ", error);
+  //     alert("Failed to delete the record. Please try again.");
+  //   }
+  // }
+
+  console.log("dataSource--->", dataSource)
   const columns = [
     {
       key: "sort",
@@ -118,7 +142,7 @@ const DragTable = ({ sourceData, setIsModalOpen }) => {
                   Edit
                 </span>
               </Menu.Item>
-              <Menu.Item key="2">
+              <Menu.Item key="2" onClick={() => handleClickDelete(record)}>
                 <span className="text-[#DA2F2F] text-[16px] font-semibold">
                   Delete
                 </span>
@@ -161,16 +185,12 @@ const DragTable = ({ sourceData, setIsModalOpen }) => {
       if (selected) {
         setSelectedRows((prev) => [...prev, record]);
       } else {
-        setSelectedRows((prev) => prev.filter((row) => row.key !== record.key));
+        setSelectedRows((prev) => prev.filter((row) => row.id !== record.id));
       }
     },
     onSelectAll: (selected) => {
       setSelectedRows(selected ? dataSource : []);
     },
-    getCheckboxProps: (record) => ({
-      disabled: record.type === "S", // Example of disabling rows
-      name: record.name,
-    }),
   };
 
   const onDragEnd = ({ active, over }) => {

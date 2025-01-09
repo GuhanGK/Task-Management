@@ -9,7 +9,11 @@ import { setIsLoggedIn } from "../../../Redux/Auth";
 import { SearchOutlined } from "@ant-design/icons";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { getDatabase, ref, push } from "firebase/database";
+import { getDatabase, ref, push, remove } from "firebase/database";
+
+import {ReactComponent as TaskLogoIcon} from '../../../assets/TaskLogoIcon.svg' 
+import {ReactComponent as BoardIcon} from '../../../assets/board_icon.svg' 
+import {ReactComponent as ListIcon} from '../../../assets/list_icon.svg' 
 
 import moment from "moment";
 import { useSelector } from "react-redux";
@@ -28,22 +32,65 @@ const DataView = () => {
   const [category, setCategory] = useState("");
   const [nameData, setNameData] = useState('')
   const EditData = useSelector((state) => state.taskTracking.editTableData)
+  const getTasksData = useSelector((state) => state.taskTracking.getTasksData)
+  
   const handleLogout = () => {
     dispatch(setIsLoggedIn(false));
     navigate("/login");
   };
 
+  const [taskTableData, setTaskTableData] = useState({
+    todoData: [],
+    inProgressData: [],
+    completeData: []
+  })
+
   const [tasks, setTasks] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const fetchedTasks = await fetchTasksFromFirebase();
-      setTasks(fetchedTasks);
-      dispatch(setGetTasksData(fetchedTasks))
-    };
+  const fetchData = async () => {
+    const fetchedTasks = await fetchTasksFromFirebase();
+    setTasks(fetchedTasks);
+    dispatch(setGetTasksData(fetchedTasks))
+  };
 
+  useEffect(() => {
     fetchData(); // Fetch data on component mount
   }, []);
+
+  const handleClickDelete = async (record) => {
+    if (!record.id) {
+      alert("Record ID is missing. Cannot delete.");
+      return;
+    }
+  
+    try {
+      const confirmation = window.confirm("Are you sure you want to delete this item?");
+      if (confirmation) {
+        const db = getDatabase(); // Initialize Realtime Database instance
+        const recordRef = ref(db, `tasks/${record.id}`); // Replace "tasks" with your node name
+        await remove(recordRef);
+        alert("Record deleted successfully!");
+        fetchData();
+      }
+    } catch (error) {
+      console.error("Error deleting record: ", error.message);
+      alert(`Failed to delete the record. Error: ${error.message}`);
+    }
+  };
+
+  useEffect(() => {
+    const todoData = getTasksData?.filter((item) => item.status === 'todo')
+    const inProgressData = getTasksData?.filter((item) => item.status === "inprogress")
+    const completeData = getTasksData?.filter((item) => item.status === "completed")
+    const todo = getTasksData?.filter((item) => item.status)
+    setTaskTableData((prev) => ({
+      ...prev,
+      todoData: todoData,
+      inProgressData: inProgressData,
+      completeData: completeData
+    }))
+  }, [tasks, dispatch])
+
   console.log("tasks-->", tasks)
   const [form] = Form.useForm()
   console.log("EditData---->", EditData)
@@ -66,6 +113,7 @@ const DataView = () => {
       setNameData('')
       form.resetFields()
       setIsModalOpen(false)
+      fetchData();
     } catch (error) {
       message.error("Error adding task:", error);
       setIsModalOpen(false)
@@ -99,11 +147,15 @@ const DataView = () => {
   useEffect(() => {
     if(EditData){
       form.setFieldsValue({
-        dueOn: EditData.dueDate,
-        taskStatus: EditData.progress
-      })
+        dueOn: EditData.dueOn ? moment(EditData.dueOn) : null,
+        taskStatus: EditData.status,
+      });
+      // form.setFieldsValue(EditData)
+      setNameData(EditData.task)
+      setCategory(EditData.category)
+      setEditorValue(EditData.description)
     }
-  }, [form])
+  }, [EditData, form])
 
   const handleClickAdd = () => {
     dispatch(setEditTableData({}))
@@ -113,29 +165,29 @@ const DataView = () => {
     <>
       <div className="flex justify-between">
         <div className="flex justify-between flex-col">
-          <h3 className="text-[#2F2F2F] text-[24px] font-semibold">
-            TaskBuddy
+          <h3 className="flex items-center gap-2 text-[#2F2F2F] text-[24px] font-semibold">
+            <TaskLogoIcon /> TaskBuddy
           </h3>
-          <div className="flex gap-3">
+          <div className="flex gap-6">
             <p
               className={
                 activeTab === 1
-                  ? "w-fit border-b border-black text-[16px] font-semibold cursor-pointer"
-                  : "text-[16px] font-semibold cursor-pointer"
+                  ? "w-fit border-b border-black flex items-center gap-2 text-[16px] font-semibold cursor-pointer"
+                  : "flex items-center gap-2 text-[16px] font-semibold cursor-pointer"
               }
               onClick={() => setActiveTab(1)}
             >
-              List
+              <ListIcon /> List
             </p>
             <p
               className={
                 activeTab === 2
-                  ? "w-fit border-b border-black text-[16px] font-semibold cursor-pointer"
-                  : "text-[16px] font-semibold cursor-pointer"
+                  ? "flex items-center gap-2 w-fit border-b border-black text-[16px] font-semibold cursor-pointer"
+                  : "flex items-center gap-2 text-[16px] font-semibold cursor-pointer"
               }
               onClick={() => setActiveTab(2)}
             >
-              Board
+              <BoardIcon /> Board
             </p>
           </div>
         </div>
@@ -209,12 +261,12 @@ const DataView = () => {
       </div>
       {activeTab === 1 && (
         <div className="mt-4">
-          <ListTableView setIsModalOpen={setIsModalOpen}/>
+          <ListTableView setIsModalOpen={setIsModalOpen} taskTableData={taskTableData} handleClickDelete={handleClickDelete}/>
         </div>
       )}
       {activeTab === 2 && (
         <div className="mt-4">
-          <CardView />
+          <CardView taskTableData={taskTableData}/>
         </div>
       )}
 
@@ -305,8 +357,8 @@ const DataView = () => {
                   ]}
                 >
                   <Select
-                    defaultValue="Category"
                     className="filter_input_container"
+                    name="taskStatus"
                     style={{
                       width: 200,
                       height: 32,

@@ -88,7 +88,10 @@
   text-align: left;
 }
 
-
+.list_table .ant-table-content{
+  z-index: 0;
+  position: relative;
+}
 .add_table_container .add_table_wrapper thead.ant-table-thead{
   display: none !important;
 }
@@ -157,6 +160,7 @@
 }
 .ant-modal-content{
   padding: unset !important;
+
 }
 .ant-modal-header{
   padding: 1rem 0rem;
@@ -170,4 +174,8 @@
 
 .ant-modal-close{
   top: 15px;
+}
+
+.scroll_container::-webkit-scrollbar{
+  display: none;
 }
