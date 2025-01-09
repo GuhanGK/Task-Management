@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProfileImg from "../../../assets/profileImg.svg";
-import { Button, DatePicker, Form, Input, Modal, Select, Upload } from "antd";
+import { Button, DatePicker, Form, Input, message, Modal, Select, Upload } from "antd";
 import ListTableView from "../ListView";
 import CardView from "../CardView";
 import { useDispatch } from "react-redux";
@@ -10,7 +10,14 @@ import { SearchOutlined } from "@ant-design/icons";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { getDatabase, ref, push } from "firebase/database";
+
 import moment from "moment";
+import { useSelector } from "react-redux";
+import { database } from "../../FireBase/Firebase";
+import { setEditTableData, setGetTasksData } from "../../../Redux/Tracking";
+import fetchTasksFromFirebase from "../../FireBase/fetchData";
+
+// const dbRef = ref(database);
 
 const DataView = () => {
   const dispatch = useDispatch();
@@ -19,57 +26,89 @@ const DataView = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editorValue, setEditorValue] = useState("");
   const [category, setCategory] = useState("");
+  const [nameData, setNameData] = useState('')
+  const EditData = useSelector((state) => state.taskTracking.editTableData)
   const handleLogout = () => {
     dispatch(setIsLoggedIn(false));
     navigate("/login");
   };
 
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const fetchedTasks = await fetchTasksFromFirebase();
+      setTasks(fetchedTasks);
+      dispatch(setGetTasksData(fetchedTasks))
+    };
+
+    fetchData(); // Fetch data on component mount
+  }, []);
+  console.log("tasks-->", tasks)
+  const [form] = Form.useForm()
+  console.log("EditData---->", EditData)
   const props = {
     name: "file",
-    // action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-    // headers: {
-    //   authorization: 'authorization-text',
-    // },
     onChange(info) {
       if (info.file.status !== "uploading") {
         console.log(info.file, info.fileList);
       }
-      // if (info.file.status === 'done') {
-      //   // message.success(`${info.file.name} file uploaded successfully`);
-      // } else if (info.file.status === 'error') {
-      //   message.error(`${info.file.name} file upload failed.`);
-      // }
     },
   };
   const handleCloseModal = () => setIsModalOpen(false);
 
   const addTaskToFirebase = async (taskData) => {
     try {
-      const db = getDatabase(); // Initialize Firebase Realtime Database
-      const tasksRef = ref(db, "tasks"); // Reference to the "tasks" node
+      const tasksRef = ref(database, "tasks"); // Reference to the "tasks" node
       await push(tasksRef, taskData); // Push the new task
-      console.log("Task added successfully!");
+      message.success("Task added successfully!");
+      setCategory('');
+      setNameData('')
+      form.resetFields()
+      setIsModalOpen(false)
     } catch (error) {
-      console.error("Error adding task:", error);
+      message.error("Error adding task:", error);
+      setIsModalOpen(false)
     }
   };
 
-  const [nameData, setNameData] = useState('')
-  console.log("nameData--->", nameData)
+
+  const handleCloseFormModal = () => {
+    setCategory('');
+    setNameData('')
+    form.resetFields()
+    setIsModalOpen(false)
+  }
+
   const handleFormSubmit = (values) => {
-    console.log("values--->", values)
     const date = values.dueOn ? values.dueOn.format('DD-MM-YYYY') : null;
+    const plainText = editorValue ? editorValue.replace(/<\/?[^>]+(>|$)/g, "") : "";
+
     const taskData = {
-      taskName: nameData,
-      description: editorValue, // Add rich text description
+      task: nameData,
+      description: plainText,
       dueOn: date,
-      taskStatus: values.taskStatus,
+      status: values.taskStatus,
+      category: category,
       createdAt: new Date().toISOString(),
     };
     console.log("taskData--->", taskData)
     addTaskToFirebase(taskData);
   };
 
+  useEffect(() => {
+    if(EditData){
+      form.setFieldsValue({
+        dueOn: EditData.dueDate,
+        taskStatus: EditData.progress
+      })
+    }
+  }, [form])
+
+  const handleClickAdd = () => {
+    dispatch(setEditTableData({}))
+    setIsModalOpen(!isModalOpen)
+  }
   return (
     <>
       <div className="flex justify-between">
@@ -161,7 +200,7 @@ const DataView = () => {
             prefix={<SearchOutlined />}
           />
           <Button
-            onClick={() => setIsModalOpen(!isModalOpen)}
+            onClick={handleClickAdd}
             className="w-[152px] h-[36px] rounded-[60px] bg-[#7B1984] text-[#fff] text-[14px] font-semibold"
           >
             ADD TASK
@@ -170,7 +209,7 @@ const DataView = () => {
       </div>
       {activeTab === 1 && (
         <div className="mt-4">
-          <ListTableView />
+          <ListTableView setIsModalOpen={setIsModalOpen}/>
         </div>
       )}
       {activeTab === 2 && (
@@ -184,13 +223,17 @@ const DataView = () => {
         onCancel={handleCloseModal}
         title="Create Task"
         width={700}
+        footer={false}
+        style={{
+          top: 12
+        }}
       >
-        <div>
+        <div className="p-4">
           <Input name='taskName' value={nameData ? nameData : ""} onChange={(e) => setNameData(e.target.value)}/>
           <ReactQuill
             theme="snow" // Choose the theme: 'snow' or 'bubble'
             value={editorValue} // Controlled input
-            onChange={setEditorValue} // Update the state on text change
+            onChange={(content) => setEditorValue(content)}  // Update the state on text change
             placeholder="Write something..."
             className="mb-4"
             modules={{
@@ -203,8 +246,16 @@ const DataView = () => {
               ],
             }}
           />
-          <div className="flex justify-between">
-            <div className="flex flex-col gap-2">
+          <div className="flex justify-between h-[270px]">
+            
+            <div className="flex items-center">
+              <Form
+                // form={form}
+                layout="vertical"
+                className="flex gap-3 flex-wrap"
+                onFinish={handleFormSubmit}
+              >
+                <div className="flex flex-col gap-3">
               <p className="text-[12px] text-[#00000099] font-semibold">Task Category</p>
               <div className="flex gap-2">
                 <div
@@ -229,13 +280,6 @@ const DataView = () => {
                 </div>
               </div>
             </div>
-            <div className="flex items-center">
-              <Form
-                // form={form}
-                layout="vertical"
-                className="flex items-center gap-3"
-                onFinish={handleFormSubmit}
-              >
                 <Form.Item
                   label="Due on"
                   name="dueOn"
@@ -284,13 +328,15 @@ const DataView = () => {
                   />
                 </Form.Item>
 
-                <div className="w-full">
-            <Upload {...props} className="w-full">
-              <Button className="w-full">Click to Upload</Button>
-            </Upload>
-          </div>
-          <div>
-          <Button htmlType="submit">Create</Button>
+                <div className="file_upload_container mb-4">
+                  <Upload {...props} className="!w-full">
+                    <Button className="!w-full">Click to Upload</Button>
+                  </Upload>
+                </div>
+                <br/>
+              <div className="flex justify-end w-full py-4 pe-3 gap-3 mt-4 absolute bottom-0 left-0 bg-[#F1F1F1]">
+              <Button onClick={handleCloseFormModal} className="w-[100px] h-[40px] text-[14px] font-bold rounded-[40px]">Cancel</Button>
+            <Button htmlType="submit" className="w-[100px] h-[40px] text-[14px] text-[#fff] font-bold bg-[#7B1984] rounded-[40px]">Create</Button>
         </div>
               </Form>
             </div>

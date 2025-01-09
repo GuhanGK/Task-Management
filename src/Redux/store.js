@@ -4,7 +4,7 @@ import { AuthReducer } from './Auth'
 
 export const store = configureStore({
   reducer: {
-    mediaTracking: TrackingReducer,
+    taskTracking: TrackingReducer,
     auth: AuthReducer
   },
 })

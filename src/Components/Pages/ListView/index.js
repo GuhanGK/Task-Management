@@ -14,8 +14,9 @@ import {
   Table,
 } from "antd";
 import DragTable from "../../Reusable/DragTable";
+import { useSelector } from "react-redux";
 const { Panel } = Collapse;
-const ListTableView = () => {
+const ListTableView = ({setIsModalOpen}) => {
   const [expandIconPosition, setExpandIconPosition] = useState("end");
   const [selectedRowKeys, setSelectedRowKeys] = useState([]); // Initial selected keys
   const [selectedRows, setSelectedRows] = useState([]); // Store the selected rows
@@ -25,6 +26,7 @@ const ListTableView = () => {
     catagory: ""
   })
 
+  const getTasksData = useSelector((state) => state.taskTracking.getTasksData)
   const ActionMenu = () => (
     <Menu
       onClick={(e) => {
@@ -442,7 +444,8 @@ const ListTableView = () => {
                       )}
                     </div>
                     <DragTable 
-                      sourceData={dataSource}
+                      sourceData={getTasksData}
+                      setIsModalOpen={setIsModalOpen}
                     />
                   </>
                 ) : (
@@ -486,6 +489,7 @@ const ListTableView = () => {
             <Panel header="In-Progress (3)" key="1">
               <DragTable 
                 sourceData={dataSource}
+                setIsModalOpen={setIsModalOpen}
               />
             </Panel>
           </Collapse>
@@ -502,6 +506,7 @@ const ListTableView = () => {
             <Panel header="Completed (3)" key="1">
               <DragTable 
                 sourceData={dataSource}
+                setIsModalOpen={setIsModalOpen}
               />
             </Panel>
           </Collapse>

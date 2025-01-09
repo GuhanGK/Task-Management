@@ -149,3 +149,25 @@
   min-height: 120px;
   background: #F1F1F15C;
 }
+.file_upload_container{
+  width: 100% !important;
+}
+.ant-upload-wrapper .ant-upload-select{
+  width: 100% !important;
+}
+.ant-modal-content{
+  padding: unset !important;
+}
+.ant-modal-header{
+  padding: 1rem 0rem;
+  border-bottom: 1px solid #0000001A;
+}
+
+.ant-modal-title{
+  padding: 1rem 1rem !important;
+  border-bottom: 1px solid #0000001A;
+}
+
+.ant-modal-close{
+  top: 15px;
+}

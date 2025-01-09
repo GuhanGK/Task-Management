@@ -10,6 +10,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button, Dropdown, Menu, Table } from "antd";
+import { useDispatch } from "react-redux";
+import { setEditTableData } from "../../../Redux/Tracking";
 
 // Context to manage drag-related props for each row
 const RowContext = React.createContext({});
@@ -68,13 +70,15 @@ const SortableRow = ({ children, ...props }) => {
 };
 
 // Main DragTable Component
-const DragTable = ({ sourceData }) => {
+const DragTable = ({ sourceData, setIsModalOpen }) => {
   const [dataSource, setDataSource] = useState(sourceData);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]); // Initial selected keys
   const [selectedRows, setSelectedRows] = useState([]);
-
+  const dispatch = useDispatch()
   const handleClickEdit = (record) => {
     console.log("redord---->", record)
+    dispatch(setEditTableData(record))
+    setIsModalOpen(true)
   }
 
   const columns = [
@@ -84,17 +88,17 @@ const DragTable = ({ sourceData }) => {
       render: () => <DragHandle />,
     },
     { title: "Task name", dataIndex: "task", key: "task", width: "20%" },
-    { title: "Due on", dataIndex: "dayTime", key: "dayTime", width: "20%" },
+    { title: "Due on", dataIndex: "dueOn", key: "dueOn", width: "20%" },
     {
       title: "Task Status",
-      dataIndex: "progress",
-      key: "progress",
+      dataIndex: "status",
+      key: "status",
       width: "20%",
     },
     {
       title: "Task Category",
-      dataIndex: "process",
-      key: "process",
+      dataIndex: "category",
+      key: "category",
       width: "20%",
     },
     {
