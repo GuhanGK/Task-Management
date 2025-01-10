@@ -33,7 +33,7 @@ const Login = () => {
                 </div>
 
                 <div>
-                    <img src={CircleImg} alt="CircleImg" className="w-[100%]" />
+                    <img src={CircleImg} alt="CircleImg" className="w-[100%] pointer-cursor" />
                     <img src={TaskListImg} alt="TaskListImg" className="absolute top-[80px] w-[45%] right-[30px]" />
                 </div>
             </div>

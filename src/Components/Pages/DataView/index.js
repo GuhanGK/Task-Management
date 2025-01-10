@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import ProfileImg from "../../../assets/profileImg.svg";
-import { Button, DatePicker, Form, Input, message, Modal, Select, Upload } from "antd";
+import { Button, DatePicker, Form, Input, message, Modal, Select, Spin, Upload } from "antd";
 import ListTableView from "../ListView";
 import CardView from "../CardView";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setIsLoggedIn } from "../../../Redux/Auth";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, LoadingOutlined } from "@ant-design/icons";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { getDatabase, ref, push, remove } from "firebase/database";
+import { getDatabase, ref, push, remove, update } from "firebase/database";
 
 import {ReactComponent as TaskLogoIcon} from '../../../assets/TaskLogoIcon.svg' 
 import {ReactComponent as BoardIcon} from '../../../assets/board_icon.svg' 
@@ -46,9 +46,13 @@ const DataView = () => {
   })
 
   const [tasks, setTasks] = useState([]);
-
+  const [loading, setLoading] = useState(false)
   const fetchData = async () => {
+    setLoading(true)
     const fetchedTasks = await fetchTasksFromFirebase();
+    if(fetchedTasks){
+      setLoading(false)
+    }
     setTasks(fetchedTasks);
     dispatch(setGetTasksData(fetchedTasks))
   };
@@ -121,6 +125,39 @@ const DataView = () => {
   };
 
 
+  const updateTaskInFirebase = async (taskId, updatedTaskData) => {
+    try {
+      const taskRef = ref(database, `tasks/${taskId}`); // Reference to the specific task
+      await update(taskRef, updatedTaskData); // Update the task with the new data
+      message.success("Task updated successfully!");
+      setCategory('');
+      setNameData('');
+      form.resetFields();
+      dispatch(setEditTableData({}))
+      setIsModalOpen(false);
+      fetchData();
+    } catch (error) {
+      message.error("Error updating task:", error.message);
+      setIsModalOpen(false);
+    }
+  };
+
+  // const handleUpdate = (values) => {
+  //   const taskId = EditData?.id; 
+  //   const date = values.dueOn ? values.dueOn.format('DD-MM-YYYY') : null;
+  //   const plainText = editorValue ? editorValue.replace(/<\/?[^>]+(>|$)/g, "") : "";
+
+  //   const taskData = {
+  //     task: nameData,
+  //     description: plainText,
+  //     dueOn: date,
+  //     status: values.taskStatus,
+  //     category: category,
+  //     createdAt: new Date().toISOString(),
+  //   };
+  //   updateTaskInFirebase(taskId, updatedTaskData);
+  // };
+  
   const handleCloseFormModal = () => {
     setCategory('');
     setNameData('')
@@ -131,7 +168,7 @@ const DataView = () => {
   const handleFormSubmit = (values) => {
     const date = values.dueOn ? values.dueOn.format('DD-MM-YYYY') : null;
     const plainText = editorValue ? editorValue.replace(/<\/?[^>]+(>|$)/g, "") : "";
-
+    const taskId = EditData?.id; 
     const taskData = {
       task: nameData,
       description: plainText,
@@ -141,7 +178,12 @@ const DataView = () => {
       createdAt: new Date().toISOString(),
     };
     console.log("taskData--->", taskData)
-    addTaskToFirebase(taskData);
+    if(EditData?.id) {
+      updateTaskInFirebase(taskId, taskData)
+    }else{
+      addTaskToFirebase(taskData);
+    }
+    
   };
 
   useEffect(() => {
@@ -163,6 +205,7 @@ const DataView = () => {
   }
   return (
     <>
+      <p onClick={() => navigate('/summa')}>Table</p>
       <div className="flex justify-between">
         <div className="flex justify-between flex-col">
           <h3 className="flex items-center gap-2 text-[#2F2F2F] text-[24px] font-semibold">
@@ -260,14 +303,22 @@ const DataView = () => {
         </div>
       </div>
       {activeTab === 1 && (
-        <div className="mt-4">
-          <ListTableView setIsModalOpen={setIsModalOpen} taskTableData={taskTableData} handleClickDelete={handleClickDelete}/>
-        </div>
+        loading ? (
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
+        ) : (
+          <div className="mt-4">
+            <ListTableView setIsModalOpen={setIsModalOpen} taskTableData={taskTableData} handleClickDelete={handleClickDelete}/>
+          </div>
+        )   
       )}
       {activeTab === 2 && (
-        <div className="mt-4">
-          <CardView taskTableData={taskTableData}/>
-        </div>
+        loading ? (
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
+        ) : (
+          <div className="mt-4">
+            <CardView taskTableData={taskTableData}/>
+          </div>
+        )
       )}
 
       <Modal
