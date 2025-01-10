@@ -20,6 +20,7 @@ import { useSelector } from "react-redux";
 import { database } from "../../FireBase/Firebase";
 import { setEditTableData, setGetTasksData } from "../../../Redux/Tracking";
 import fetchTasksFromFirebase from "../../FireBase/fetchData";
+import dayjs from "dayjs";
 
 // const dbRef = ref(database);
 
@@ -189,7 +190,7 @@ const DataView = () => {
   useEffect(() => {
     if(EditData){
       form.setFieldsValue({
-        dueOn: EditData.dueOn ? moment(EditData.dueOn) : null,
+        dueOn: EditData.dueOn ? dayjs(EditData.dueOn, "DD-MM-YYYY") : null,
         taskStatus: EditData.status,
       });
       // form.setFieldsValue(EditData)
@@ -198,6 +199,8 @@ const DataView = () => {
       setEditorValue(EditData.description)
     }
   }, [EditData, form])
+
+  console.log("getValues-->", form.getFieldsValue())
 
   const handleClickAdd = () => {
     dispatch(setEditTableData({}))
@@ -316,7 +319,7 @@ const DataView = () => {
           <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
         ) : (
           <div className="mt-4">
-            <CardView taskTableData={taskTableData}/>
+            <CardView taskTableData={taskTableData} setIsModalOpen={setIsModalOpen} handleClickDelete={handleClickDelete}/>
           </div>
         )
       )}
@@ -353,7 +356,7 @@ const DataView = () => {
             
             <div className="flex items-center">
               <Form
-                // form={form}
+                form={form}
                 layout="vertical"
                 className="flex gap-3 flex-wrap"
                 onFinish={handleFormSubmit}
@@ -394,7 +397,7 @@ const DataView = () => {
                     },
                   ]}
                 >
-                  <DatePicker className="w-[200px] h-[32px]" />
+                  <DatePicker className="w-[200px] h-[32px]" format="DD-MM-YYYY" />
                 </Form.Item>
                 <Form.Item
                   label="Task Status"

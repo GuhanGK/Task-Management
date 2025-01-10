@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  DndContext,
-  closestCenter,
-} from "@dnd-kit/core";
+import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
@@ -11,15 +8,13 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { EllipsisOutlined } from "@ant-design/icons";
+import { setEditTableData } from "../../../Redux/Tracking";
+import { Dropdown, Menu } from "antd";
+import { useDispatch } from "react-redux";
 
-const DraggableCard = ({ id, content }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id });
+const DraggableCard = ({ id, content, handleClickDelete, setIsModalOpen, handleClickEdit }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id });
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -36,7 +31,32 @@ const DraggableCard = ({ id, content }) => {
     >
       <div className="flex justify-between">
         <p>{content.task}</p>
-        <EllipsisOutlined />
+        <Dropdown
+          overlay={
+            <Menu
+              onClick={(e) => {
+                e.domEvent.stopPropagation(); // Prevent event propagation
+              }}
+            >
+              <Menu.Item key="1" onClick={() => handleClickEdit(content)}>
+                <span className="text-[#000000] text-[16px] font-semibold">
+                  Edit
+                </span>
+              </Menu.Item>
+              <Menu.Item key="2" onClick={() => handleClickDelete(content)}>
+                <span className="text-[#DA2F2F] text-[16px] font-semibold">
+                  Delete
+                </span>
+              </Menu.Item>
+            </Menu>
+          }
+        >
+          <EllipsisOutlined
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent event propagation
+            }}
+          />
+        </Dropdown>
       </div>
       <div className="flex justify-between">
         <span>{content.category}</span>
@@ -46,31 +66,38 @@ const DraggableCard = ({ id, content }) => {
   );
 };
 
-const CardView = ({taskTableData}) => {
+const CardView = ({ taskTableData, setIsModalOpen, handleClickDelete }) => {
+  const dispatch = useDispatch()
   const [columns, setColumns] = useState({
     Work: taskTableData.todoData,
     Complete: taskTableData.inProgressData,
     Pending: taskTableData.completeData,
   });
 
+  const handleClickEdit = (record) => {
+    console.log("redord---->", record)
+    dispatch(setEditTableData(record))
+    setIsModalOpen(true)
+  }
+
   useEffect(() => {
-    setColumns(taskTableData)
-  }, [taskTableData])
+    setColumns(taskTableData);
+  }, [taskTableData]);
 
   const handleDragEnd = ({ active, over }) => {
     if (!over || active.id === over.id) return; // Do nothing if there's no valid target or the card isn't moved
-  
+
     const [sourceColumn, sourceIndex] = findCard(active.id);
     const [destinationColumn, destinationIndex] = findCard(over.id);
-  
+
     if (sourceColumn && destinationColumn) {
       setColumns((prev) => {
         const sourceItems = [...prev[sourceColumn]];
         const [movedItem] = sourceItems.splice(sourceIndex, 1);
-  
+
         const destinationItems = [...prev[destinationColumn]];
         destinationItems.splice(destinationIndex, 0, movedItem);
-  
+
         return {
           ...prev,
           [sourceColumn]: sourceItems,
@@ -79,7 +106,6 @@ const CardView = ({taskTableData}) => {
       });
     }
   };
-  
 
   const findCard = (id) => {
     for (const [column, items] of Object.entries(columns)) {
@@ -101,15 +127,24 @@ const CardView = ({taskTableData}) => {
             strategy={verticalListSortingStrategy}
           >
             <div className="w-[33%] h-[100vh] flex flex-col gap-4 bg-[#58575112] p-3 rounded-[12px]">
-              <h3 
-                className={columnName === "todoData" ? "w-fit p-2 rounded-[4px] text-[14px] text-left font-medium bg-[#FAC3FF]" : columnName === "inProgressData" ? "w-fit p-2 rounded-[4px] text-[14px] text-left font-medium bg-[#85D9F1]" : "w-fit p-2 rounded-[4px] text-[14px] text-left font-medium bg-[#A2D6A0]"}
-
+              <h3
+                className={
+                  columnName === "todoData"
+                    ? "w-fit p-2 rounded-[4px] text-[14px] text-left font-medium bg-[#FAC3FF]"
+                    : columnName === "inProgressData"
+                    ? "w-fit p-2 rounded-[4px] text-[14px] text-left font-medium bg-[#85D9F1]"
+                    : "w-fit p-2 rounded-[4px] text-[14px] text-left font-medium bg-[#A2D6A0]"
+                }
               >
-                {columnName === "todoData" ? "TO-DO" : columnName === "inProgressData" ? "IN-PROGRESS" : "COMPLETED"}
+                {columnName === "todoData"
+                  ? "TO-DO"
+                  : columnName === "inProgressData"
+                  ? "IN-PROGRESS"
+                  : "COMPLETED"}
               </h3>
               <div className="scroll_container h-[600px] overflow-y-scroll scrollbar-hide flex flex-col gap-3">
                 {items.map((item) => (
-                  <DraggableCard key={item.id} id={item.id} content={item} />
+                  <DraggableCard key={item.id} id={item.id} content={item} setIsModalOpen={setIsModalOpen} handleClickDelete={handleClickDelete} handleClickEdit={handleClickEdit}/>
                 ))}
               </div>
             </div>
