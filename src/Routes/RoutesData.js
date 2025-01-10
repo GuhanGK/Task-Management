@@ -1,5 +1,6 @@
 import DataView from "../Components/Pages/DataView";
 import Login from "../Components/Pages/Login";
+import PermissionManager from "../summa";
 
 const unProtectedRoutes = [
   {
@@ -16,6 +17,11 @@ const protectedRoutes = [
   {
     path: "/",
     component: <DataView />,
+    key: "dashboard",
+  },
+  {
+    path: "/summa",
+    component: <PermissionManager />,
     key: "dashboard",
   },
 ];
