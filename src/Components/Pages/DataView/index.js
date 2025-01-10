@@ -208,7 +208,6 @@ const DataView = () => {
   }
   return (
     <>
-      <p onClick={() => navigate('/summa')}>Table</p>
       <div className="flex justify-between">
         <div className="flex justify-between flex-col">
           <h3 className="flex items-center gap-2 text-[#2F2F2F] text-[24px] font-semibold">
