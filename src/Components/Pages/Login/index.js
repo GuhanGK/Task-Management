@@ -14,12 +14,22 @@ const Login = () => {
     const dispatch = useDispatch()
     const handleGoogleLogin = async () => {
         const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider).then((res) => {
-            if(res.user){
-                dispatch(setIsLoggedIn(true))
-                navigate('/')
+        signInWithPopup(auth, provider)
+        .then((res) => {
+            if (res.user) {
+                // Dispatch the login state
+                dispatch(setIsLoggedIn(true));
+    
+                // Open the desired URL in a new tab
+                const newTab = window.open("/", "_blank");
+                if (!newTab) {
+                    console.error("Failed to open new tab. Popup might be blocked.");
+                }
             }
         })
+        .catch((error) => {
+            console.error("Error during sign-in: ", error);
+        });
         
     }
     return(
