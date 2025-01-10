@@ -88,22 +88,6 @@ const DragTable = ({ sourceData, setIsModalOpen, handleClickDelete }) => {
     setDataSource(sourceData);
   }, [sourceData]);
 
-  
-  // const handleClickDelete = async (record) => {
-  //   console.log("record--->", record)
-  //   const db = getDatabase(); 
-  //   try {
-  //     if (window.confirm("Are you sure you want to delete this item?")) {
-  //       const docRef = doc(db, "tasks", record.id);
-  //       await deleteDoc(docRef);
-  //       alert("Record deleted successfully!");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error deleting record: ", error);
-  //     alert("Failed to delete the record. Please try again.");
-  //   }
-  // }
-
   console.log("dataSource--->", dataSource)
   const columns = [
     {
